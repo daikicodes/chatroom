@@ -164,5 +164,7 @@ as a Playwright suite.
   reconnection journeys, design decisions.
 - [`docs/protocol.md`](docs/protocol.md) — every frame, limit, error code, and
   close code.
+- [`docs/deployment.md`](docs/deployment.md) — deploy to Vercel + Render (or
+  Railway/Fly), environment variables, and troubleshooting.
 - [`backend/README.md`](backend/README.md) — backend-specific notes.
 - [`frontend/README.md`](frontend/README.md) — frontend-specific notes.

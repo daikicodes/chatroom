@@ -59,5 +59,12 @@ ws.send(JSON.stringify({ type: "message", text: "hello" }))
   clients that send no `Origin` are allowed.
 - Invalid frames produce an `error` response; they do not close the connection.
 
+## Deployment
+
+`npm start` runs TypeScript through `tsx`, which lives in `devDependencies`.
+Production hosts must install dev dependencies (`npm ci --include=dev`) or move
+`tsx` to `dependencies`. See [`../docs/deployment.md`](../docs/deployment.md)
+for a step-by-step Vercel + Render guide.
+
 Full frame reference: [`../docs/protocol.md`](../docs/protocol.md). Code map:
 [`../docs/architecture.md`](../docs/architecture.md).
