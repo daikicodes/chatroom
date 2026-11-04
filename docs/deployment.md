@@ -131,7 +131,9 @@ previews.
 The backend still has the placeholder origin. Update it:
 
 1. Render → your service → **Environment** → set
-   `CORS_ORIGIN=https://chatroom.vercel.app` (exact origin, no trailing slash).
+   `CORS_ORIGIN=https://chatroom.vercel.app` (exact origin). Trailing slashes
+   and surrounding whitespace are normalized by the backend, but the scheme and
+   host must still match.
 2. Save; Render restarts the service.
 3. Open the Vercel URL and check that the status becomes "Online".
 
@@ -165,15 +167,16 @@ ws.onopen = () => ws.send(JSON.stringify({ type: "join", nickname: "test" }))
 
 ## Troubleshooting
 
-| Symptom                                   | Likely cause                                  | Fix                                                                                                                      |
-| ----------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| WebSocket closes with `1008`              | `Origin` not in the allowlist                 | Set `CORS_ORIGIN` to the exact frontend origin, including `https://`, without a trailing slash, and restart the backend. |
-| "Mixed Content" or `SecurityError`        | The page is HTTPS but the socket uses `ws://` | Set `NEXT_PUBLIC_WS_URL` to `wss://…` and redeploy the frontend (env vars are build-time).                               |
-| UI stuck on "Reconnecting…"               | Backend asleep, crashed, or unreachable       | Open `/health`; check Render logs; the first request after sleep can take up to a minute.                                |
-| `tsx: not found` in Render logs           | `devDependencies` were skipped                | Build with `npm ci --include=dev`, or move `tsx` to `dependencies`.                                                      |
-| `502` or health check failing             | Wrong root directory or start command         | Root must be `backend`; start must be `npm start`; let Render provide `PORT`.                                            |
-| App loads but never shows "Online"        | Wrong WS URL or origin rejected               | Check the built value in DevTools → Network → WS, and the `allowed origins` line in the Render logs.                     |
-| Messages disappear after a deploy/restart | History is in memory                          | Expected. Add persistence (for example SQLite) if you need it.                                                           |
+| Symptom                                                                 | Likely cause                                        | Fix                                                                                                                                                                   |
+| ----------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| WebSocket closes with `1008`                                            | `Origin` not in the allowlist                       | Set `CORS_ORIGIN` to the exact frontend origin, including `https://`, and restart the backend. Check `[ws] rejected origin: …` in the Render logs.                    |
+| WebSocket opens but no frames arrive and closes after ~10 s with `1006` | `CORS_ORIGIN` does not match the browser's `Origin` | Look for `[ws] rejected origin: …` in the Render logs and compare with `location.origin`. Scheme and host must match; trailing slashes and whitespace are normalized. |
+| "Mixed Content" or `SecurityError`                                      | The page is HTTPS but the socket uses `ws://`       | Set `NEXT_PUBLIC_WS_URL` to `wss://…` and redeploy the frontend (env vars are build-time).                                                                            |
+| UI stuck on "Reconnecting…"                                             | Backend asleep, crashed, or unreachable             | Open `/health`; check Render logs; the first request after sleep can take up to a minute.                                                                             |
+| `tsx: not found` in Render logs                                         | `devDependencies` were skipped                      | Build with `npm ci --include=dev`, or move `tsx` to `dependencies`.                                                                                                   |
+| `502` or health check failing                                           | Wrong root directory or start command               | Root must be `backend`; start must be `npm start`; let Render provide `PORT`.                                                                                         |
+| App loads but never shows "Online"                                      | Wrong WS URL or origin rejected                     | Check the built value in DevTools → Network → WS, and the `allowed origins` line in the Render logs.                                                                  |
+| Messages disappear after a deploy/restart                               | History is in memory                                | Expected. Add persistence (for example SQLite) if you need it.                                                                                                        |
 
 ## Alternatives to Render
 

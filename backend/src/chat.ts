@@ -157,11 +157,19 @@ export function attachChat(
     // WebSocket has no CORS: the browser sends `Origin` during the handshake
     // and we decide whether to accept it here. Non-browser clients (CLI,
     // tests) send no Origin and are allowed through.
-    const origin = req.headers.origin
+    const rawOrigin = req.headers.origin
+    // Browsers never send a trailing slash, but normalize anyway so a
+    // hand-written client cannot be rejected for something cosmetic.
+    const origin = rawOrigin?.replace(/\/+$/, "")
     if (origin && !allowedOrigins.includes(origin)) {
+      console.warn(
+        `[ws] rejected origin ${rawOrigin} (allowed: ${allowedOrigins.join(", ")})`
+      )
       ws.close(1008, "Origin not allowed")
       return
     }
+
+    console.log(`[ws] connection accepted (origin: ${rawOrigin ?? "none"})`)
 
     const state: ClientState = { nickname: null }
     clients.set(ws, state)

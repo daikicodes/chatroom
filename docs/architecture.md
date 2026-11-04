@@ -66,7 +66,8 @@ The frontend never talks to Express directly. The only HTTP endpoint is
   nickname. `wss.clients` tracks sockets; this map tracks users.
 - On connection, checks the `Origin` header against the allowlist and closes
   with `1008` when it does not match. Requests with no `Origin` (CLI clients,
-  tests) are accepted.
+  tests) are accepted. The allowlist is normalized at startup (whitespace and
+  trailing slashes), and accepted connections and rejected origins are logged.
 - Validates every incoming frame: text only, valid JSON, known `type`, and
   field-level rules (nickname length/uniqueness, message length).
 - Broadcasts `message`, `system`, and `users` frames to every open socket.

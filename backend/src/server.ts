@@ -9,9 +9,17 @@ const PORT = Number(process.env.PORT ?? 3001)
 // Origins allowed to open a WebSocket from a browser.
 // With HTTP the browser enforces CORS; during the WebSocket handshake it only
 // sends the `Origin` header, so the check is up to us.
+//
+// Trailing slashes and surrounding whitespace are stripped: browsers send
+// `Origin` without a trailing slash, and a stray `/` in this variable used to
+// reject every WebSocket connection silently.
+function normalizeOrigin(origin: string) {
+  return origin.trim().replace(/\/+$/, "")
+}
+
 const allowedOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:3000")
   .split(",")
-  .map((origin) => origin.trim())
+  .map(normalizeOrigin)
   .filter(Boolean)
 
 const app = express()

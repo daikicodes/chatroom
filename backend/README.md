@@ -57,6 +57,9 @@ ws.send(JSON.stringify({ type: "message", text: "hello" }))
 - History lives in memory and is lost on restart.
 - Browsers are accepted only if their `Origin` is in `CORS_ORIGIN`. CLI
   clients that send no `Origin` are allowed.
+- Accepted connections and rejected origins are logged (`[ws] connection
+accepted …` / `[ws] rejected origin …`), so allowlist problems are visible in
+  the hosting logs.
 - Invalid frames produce an `error` response; they do not close the connection.
 
 ## Deployment
